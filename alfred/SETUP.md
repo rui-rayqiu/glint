@@ -60,8 +60,17 @@ Same steps as above, but use a different hotkey (e.g., `Ctrl+Shift+O`) and this 
 3. Glint opens in your browser with the polished result
 4. Click Copy or Accept
 
+## Auto-paste (optional)
+
+You can make Alfred automatically paste the polished text back into your app, so the full flow is: select text → hotkey → polished text replaces selection.
+
+1. After your Run Script block, right-click the canvas → **Utilities** → **Delay**
+2. Set the delay to **0.5s** (gives the clipboard time to update)
+3. Right-click the canvas → **Outputs** → **Dispatch Key Combo**
+4. Set the key combo to **Cmd+V**
+5. Connect the blocks: Run Script → Delay → Dispatch Key Combo
+
 ## Tips
 
 - You can set up both workflows with different hotkeys
-- If you want auto-paste after clipboard mode, add a "Dispatch Key Combo" action (Cmd+V) after the Run Script block in Alfred
 - The server must be running for either mode to work. Consider adding `npm run dev` to your login items or use a launch agent
