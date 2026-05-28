@@ -37,7 +37,7 @@ export default function App() {
         </nav>
       </header>
 
-      <main className="flex-1 p-8 max-w-4xl mx-auto w-full">
+      <main className="flex-1 p-8 max-w-5xl mx-auto w-full">
         {view === 'editor' ? <Editor /> : <History key={refreshKey} />}
       </main>
     </div>

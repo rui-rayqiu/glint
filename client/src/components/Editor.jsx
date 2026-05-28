@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useToast } from './Toast.jsx';
+import Diff from './Diff.jsx';
 
 const DEFAULT_PROMPT = `Role: Professional technical editor for a software engineer.
 
@@ -24,6 +25,8 @@ export default function Editor() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showPrompt, setShowPrompt] = useState(false);
+  const [showDiff, setShowDiff] = useState(true);
+  const [previousText, setPreviousText] = useState(null);
   const toast = useToast();
 
   async function handlePolish() {
@@ -31,6 +34,7 @@ export default function Editor() {
     setLoading(true);
     setError(null);
     setResult(null);
+    setPreviousText(null);
 
     try {
       const res = await fetch('/api/polish', {
@@ -53,6 +57,23 @@ export default function Editor() {
     }
   }
 
+  function handleAccept() {
+    if (result?.polished) {
+      setPreviousText(text);
+      setText(result.polished);
+      setResult(null);
+      toast('Accepted polished version');
+    }
+  }
+
+  function handleUndo() {
+    if (previousText !== null) {
+      setText(previousText);
+      setPreviousText(null);
+      toast('Reverted to original');
+    }
+  }
+
   function handleCopy() {
     if (result?.polished) {
       navigator.clipboard.writeText(result.polished);
@@ -64,19 +85,33 @@ export default function Editor() {
     setText('');
     setResult(null);
     setError(null);
+    setPreviousText(null);
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <label className="text-base font-medium text-gray-200">Your writing</label>
-          <button
-            onClick={() => setShowPrompt(!showPrompt)}
-            className="text-sm text-violet-400 hover:text-violet-300 transition-colors"
-          >
-            {showPrompt ? 'Hide prompt' : 'Edit prompt'}
-          </button>
+          <div className="flex items-center gap-3">
+            {previousText !== null && (
+              <button
+                onClick={handleUndo}
+                className="text-sm text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1.5"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h10a5 5 0 015 5v2M3 10l4-4M3 10l4 4" />
+                </svg>
+                Undo
+              </button>
+            )}
+            <button
+              onClick={() => setShowPrompt(!showPrompt)}
+              className="text-sm text-violet-400 hover:text-violet-300 transition-colors"
+            >
+              {showPrompt ? 'Hide prompt' : 'Edit prompt'}
+            </button>
+          </div>
         </div>
 
         {showPrompt && (
@@ -142,20 +177,50 @@ export default function Editor() {
       {result && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <label className="text-base font-medium text-gray-200">Polished result</label>
-            <button
-              onClick={handleCopy}
-              className="text-sm text-violet-400 hover:text-violet-300 transition-colors flex items-center gap-1.5"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" strokeWidth="2" />
-                <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" strokeWidth="2" />
-              </svg>
-              Copy
-            </button>
+            <div className="flex items-center gap-3">
+              <label className="text-base font-medium text-gray-200">Result</label>
+              <button
+                onClick={() => setShowDiff(!showDiff)}
+                className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${
+                  showDiff
+                    ? 'bg-violet-600/20 text-violet-300 border border-violet-500/30'
+                    : 'text-gray-500 border border-white/10 hover:text-gray-300'
+                }`}
+              >
+                Diff
+              </button>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleAccept}
+                className="text-sm text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1.5"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Accept
+              </button>
+              <button
+                onClick={handleCopy}
+                className="text-sm text-violet-400 hover:text-violet-300 transition-colors flex items-center gap-1.5"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" strokeWidth="2" />
+                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" strokeWidth="2" />
+                </svg>
+                Copy
+              </button>
+            </div>
           </div>
-          <div className="bg-violet-500/[0.04] border border-violet-500/15 rounded-2xl px-6 py-5 text-xl leading-relaxed text-gray-100 whitespace-pre-wrap">
-            {result.polished}
+
+          <div className="bg-violet-500/[0.04] border border-violet-500/15 rounded-2xl px-6 py-5">
+            {showDiff ? (
+              <Diff original={result.original} polished={result.polished} />
+            ) : (
+              <div className="text-xl leading-relaxed text-gray-100 whitespace-pre-wrap">
+                {result.polished}
+              </div>
+            )}
           </div>
         </div>
       )}
