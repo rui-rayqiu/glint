@@ -83,7 +83,7 @@ export default function Editor() {
           <textarea
             value={prompt}
             onChange={e => setPrompt(e.target.value)}
-            className="w-full bg-white/5 border border-violet-500/20 rounded-xl px-5 py-4 text-sm text-gray-200 resize-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/25 transition-all"
+            className="w-full bg-white/5 border border-violet-500/20 rounded-xl px-5 py-4 text-base text-gray-200 resize-none focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/25 transition-all"
             rows={10}
             placeholder="Instructions for how to improve your writing..."
           />
