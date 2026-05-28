@@ -6,10 +6,13 @@ Polish your writing with AI. A local-first tool for refining Slack messages, PR 
 
 - Edit your writing in a clean, modern dark UI
 - One-click polish via local Claude Code CLI
+- Inline diff view showing what changed (word-level)
+- Accept polished text into the editor for iterative refinement
 - Customizable system prompt (edit the instructions that guide the refinement)
 - Auto-detects format context (Slack, Markdown, plain text)
 - History view to browse, copy, and delete past polished messages
 - Keyboard shortcut: Cmd+Enter to polish
+- System-wide hotkey via Alfred (clipboard mode or browser mode)
 
 ## Prerequisites
 
@@ -44,6 +47,10 @@ Open http://localhost:5173 in your browser.
 2. Optionally click "Edit prompt" to customize the refinement instructions
 3. Press Cmd+Enter or click "Polish"
 4. Copy the result to your clipboard
+
+## System-wide Hotkey (macOS + Alfred)
+
+Polish text from any app with a hotkey. See [alfred/SETUP.md](alfred/SETUP.md) for full instructions.
 
 ## Architecture
 

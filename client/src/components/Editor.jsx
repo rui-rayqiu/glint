@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useToast } from './Toast.jsx';
 import Diff from './Diff.jsx';
 
@@ -28,9 +28,25 @@ export default function Editor() {
   const [showDiff, setShowDiff] = useState(true);
   const [previousText, setPreviousText] = useState(null);
   const toast = useToast();
+  const initialized = useRef(false);
+  const textRef = useRef(text);
+  textRef.current = text;
 
-  async function handlePolish() {
-    if (!text.trim()) return;
+  useEffect(() => {
+    if (initialized.current) return;
+    initialized.current = true;
+    const params = new URLSearchParams(window.location.search);
+    const prefill = params.get('text');
+    if (prefill) {
+      setText(prefill);
+      window.history.replaceState({}, '', '/');
+      setTimeout(() => polishText(prefill), 0);
+    }
+  }, []);
+
+  async function polishText(input) {
+    const textToPolish = input || textRef.current;
+    if (!textToPolish.trim()) return;
     setLoading(true);
     setError(null);
     setResult(null);
@@ -40,7 +56,7 @@ export default function Editor() {
       const res = await fetch('/api/polish', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, prompt }),
+        body: JSON.stringify({ text: textToPolish, prompt }),
       });
 
       if (!res.ok) {
@@ -55,6 +71,10 @@ export default function Editor() {
     } finally {
       setLoading(false);
     }
+  }
+
+  function handlePolish() {
+    polishText();
   }
 
   function handleAccept() {
